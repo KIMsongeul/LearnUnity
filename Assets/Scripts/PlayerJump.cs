@@ -15,7 +15,7 @@ public class PlayerJump : MonoBehaviour
     private float airborneStartVelocity = 0;
     //최초 점프 속도
     
-    private bool isGround = false;
+    private bool isGround = true;
     //땅에 닿았는지 확인
     private bool isJump = false;
     //점프 했는지 확인
