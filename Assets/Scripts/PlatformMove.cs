@@ -5,35 +5,58 @@ using UnityEngine;
 
 public class PlatformMove : MonoBehaviour
 {
-    private float minimumX = -2f;
-    private float maximumX = 2f;
-    private float speed = 3f;
+    private Vector3 startPosition = new Vector3(-2,3,0);
+    private Vector3 endPosition = new Vector3(2, 3, 0);
+
+    private float duration = 2f;
+    private float startTime;
+
+    private void Start()
+    {
+        startTime = Time.time;
+    }
 
     private void Update()
     {
-        //1. 현재 위치를 가져온다.
-        Vector3 currentPosition = transform.position;
-        
-        //2. x축으로 이동할 양을 계산한다.
-        float movingAmount = speed * Time.deltaTime;
-        
-        //3. 이동할 양을 현재 위치에 더한다.
-        currentPosition.x += movingAmount;
-        
-        //4. 최대값, 최소값을 넘어간 경우 최대값, 최소값으로 설정한다.
-        if (currentPosition.x < minimumX)
+        float elapsedTime = Time.time - startTime;
+        if (elapsedTime >= duration)
         {
-            currentPosition.x = minimumX;
-            //-1를 곱해주면 양수는 음수, 음수는 양수로 바뀌니까 반대로 움직인다.
-            speed *= -1f;
+            //방향을 바꾼다.
+            Vector3 temp = startPosition;
+            startPosition = endPosition;
+            endPosition = temp;
+            
+            //지난 시간을 수정한다.
+            elapsedTime = elapsedTime - duration;
+            startTime = Time.time;
+            
         }
-        else if (currentPosition.x > maximumX)
+        //EaseInOutElastic으로 이동
+        float t = elapsedTime / duration;
+        float easedT = EaseInOutElastic(t);
+        //easeT를 이용하여 위치를 설정한다.
+        transform.position = Vector3.Lerp(startPosition, endPosition, easedT);
+
+    }
+
+    private float EaseInOutElastic(float x)
+    {
+        var c5 = (2 * Mathf.PI) / 4.5f;
+        if (x == 0)
         {
-            currentPosition.x = maximumX;
-            speed *= -1f;
+            return 0;
         }
-        
-        //5. 위치를 설정한다.
-        transform.position = currentPosition;
+
+        if (x == 1)
+        {
+            return 1;
+        }
+
+        if (x < 0.5f)
+        {
+            return -((Mathf.Pow(2, 20 * x - 10) * Mathf.Sin((20 * x - 11.125f) * c5)) / 2);
+        }
+
+        return (Mathf.Pow(2, -20 * x + 10) * Mathf.Sin((20 * x - 11.125f) * c5)) / 2 + 1;
     }
 }
